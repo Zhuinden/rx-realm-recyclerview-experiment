@@ -129,19 +129,20 @@ public class FirstView
         if(selectedName != null && !"".equals(selectedName)) {
             query = query.contains(Dog.Fields.NAME.getField(), selectedName, Case.INSENSITIVE);
         }
-        RealmResults<Dog> results = query.findAllSorted(Dog.Fields.NAME.getField());
+        RealmResults<Dog> results = query.findAllSortedAsync(Dog.Fields.NAME.getField());
         Log.d(TAG, "Result size [" + results.size() + "] for name [" + currentName + "]");
         return results;
     }
 
     private Subscription readFromEditText() {
-        return RxTextView.textChanges(editText).map(charSequence -> {
+        return RxTextView.textChanges(editText).switchMap(charSequence -> {
             currentName = charSequence.toString();
-            return getDogs(currentName);
-        }).subscribe(dogs -> {
-            Log.d(TAG, "Update with size [" + dogs.size() + "] for name [" + currentName + "]");
-            adapter.updateData(dogs);
-        });
+            return getDogs(currentName).asObservable();
+        }).filter(RealmResults::isLoaded) //
+                .subscribe(dogs -> {
+                    Log.d(TAG, "Update with size [" + dogs.size() + "] for name [" + currentName + "]");
+                    adapter.updateData(dogs);
+                });
     }
 
     private Subscription writePeriodic() {
