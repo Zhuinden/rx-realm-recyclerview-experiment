@@ -101,8 +101,7 @@ public class CatView
         CatService catService = CustomApplication.get().catService;
         Subscription downloadCats = Observable.create(new RecyclerViewScrollBottomOnSubscribe(recyclerView))
                 .filter(isScroll -> isScroll || (!isScroll && realm.where(Cat.class).count() <= 0))
-                .switchMap(isScroll -> catService.getCats().subscribeOn(Schedulers.io()))
-                .onExceptionResumeNext(catService.getCats().subscribeOn(Schedulers.io()))
+                .switchMap(isScroll -> catService.getCats().subscribeOn(Schedulers.io())).retry()
                 .subscribe(catsBO -> {
                     if(Looper.myLooper() != null) {
                         throw new IllegalStateException("Expected to be called in io() scheduler but was called on main thread");

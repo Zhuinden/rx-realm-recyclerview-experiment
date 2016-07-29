@@ -251,3 +251,5 @@
 
 #image cropper
 -keep class com.theartofdev.edmodo.cropper.** { *; }
+
+-keep class com.bumptech.glide.integration.okhttp3.OkHttpGlideModule

@@ -58,6 +58,7 @@ public class CustomApplication
                 .inMemory() //
                 .rxFactory(new RealmObservableFactory()) //
                 .build();
+
         catService = new Retrofit.Builder().addConverterFactory(SimpleXmlConverterFactory.create())
                 .baseUrl("http://thecatapi.com/")
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
