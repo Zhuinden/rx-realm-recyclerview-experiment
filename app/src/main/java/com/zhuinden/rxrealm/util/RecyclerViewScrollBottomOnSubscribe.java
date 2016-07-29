@@ -10,7 +10,7 @@ import rx.android.MainThreadSubscription;
  * Created by Zhuinden on 2016.07.29..
  */
 public final class RecyclerViewScrollBottomOnSubscribe
-        implements Observable.OnSubscribe<Void> {
+        implements Observable.OnSubscribe<Boolean> {
     final RecyclerView view;
 
     public RecyclerViewScrollBottomOnSubscribe(RecyclerView view) {
@@ -18,7 +18,7 @@ public final class RecyclerViewScrollBottomOnSubscribe
     }
 
     @Override
-    public void call(final Subscriber<? super Void> subscriber) {
+    public void call(final Subscriber<? super Boolean> subscriber) {
         MainThreadSubscription.verifyMainThread();
 
         final RecyclerView.OnScrollListener watcher = new RecyclerView.OnScrollListener() {
@@ -46,7 +46,7 @@ public final class RecyclerViewScrollBottomOnSubscribe
 
             public void onScrolledToBottom() {
                 if(!subscriber.isUnsubscribed()) {
-                    subscriber.onNext(null);
+                    subscriber.onNext(true);
                 }
             }
         };
@@ -60,7 +60,7 @@ public final class RecyclerViewScrollBottomOnSubscribe
         });
 
         // Emit initial value.
-        subscriber.onNext(null);
+        subscriber.onNext(false);
     }
 }
 
