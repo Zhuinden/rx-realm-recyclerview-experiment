@@ -15,15 +15,16 @@ import android.widget.RelativeLayout;
 
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.zhuinden.rxrealm.R;
-import com.zhuinden.rxrealm.application.MainActivity;
+import com.zhuinden.rxrealm.application.injection.Injector;
 import com.zhuinden.rxrealm.path.cat.CatKey;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import flowless.ActivityUtils;
 import flowless.Bundleable;
 import flowless.Flow;
 import flowless.preset.FlowLifecycles;
@@ -47,19 +48,29 @@ public class DogView
 
     public DogView(Context context) {
         super(context);
+        init();
     }
 
     public DogView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public DogView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     @TargetApi(21)
     public DogView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init();
+    }
+
+    private void init() {
+        if(!isInEditMode()) {
+            Injector.INSTANCE.getComponent().inject(this);
+        }
     }
 
     @BindView(R.id.first_dog_edittext)
@@ -74,6 +85,8 @@ public class DogView
     }
 
     CompositeSubscription subscription;
+
+    @Inject
     Realm realm;
 
     volatile int counter = 0;
@@ -90,9 +103,6 @@ public class DogView
 
     @Override
     public void onViewRestored(boolean forcedWithBundler) {
-        MainActivity mainActivity = (MainActivity) ActivityUtils.getActivity(getContext());
-        realm = mainActivity.getRealm();
-
         adapter = new RealmRecyclerViewAdapter<Dog, DogViewHolder>(getContext(), getDogs(currentName), true) {
             @Override
             public DogViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
