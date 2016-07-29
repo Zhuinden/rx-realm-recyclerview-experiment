@@ -35,7 +35,7 @@ import rx.schedulers.Schedulers;
 public class CatView
         extends RelativeLayout
         implements FlowLifecycles.ViewLifecycleListener {
-    private static final String TAG = "SecondView";
+    private static final String TAG = "CatView";
 
     public CatView(Context context) {
         super(context);

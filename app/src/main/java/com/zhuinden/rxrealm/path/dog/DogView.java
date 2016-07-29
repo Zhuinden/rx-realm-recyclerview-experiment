@@ -43,7 +43,7 @@ import rx.subscriptions.CompositeSubscription;
 public class DogView
         extends RelativeLayout
         implements FlowLifecycles.ViewLifecycleListener, Bundleable {
-    private static final String TAG = "FirstView";
+    private static final String TAG = "DogView";
 
     public DogView(Context context) {
         super(context);
