@@ -8,8 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 
-import com.zhuinden.rxrealm.FirstKey;
 import com.zhuinden.rxrealm.R;
+import com.zhuinden.rxrealm.path.dog.DogKey;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,7 +33,7 @@ public class MainActivity
     protected void attachBaseContext(Context newBase) {
         flowDispatcher = new SingleRootDispatcher(this);
         newBase = Flow.configure(newBase, this) //
-                .defaultKey(FirstKey.create()) //
+                .defaultKey(DogKey.create()) //
                 .dispatcher(flowDispatcher) //
                 .install(); //
         flowDispatcher.setBaseContext(newBase);

@@ -1,4 +1,4 @@
-package com.zhuinden.rxrealm;
+package com.zhuinden.rxrealm.path.dog;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -14,14 +14,18 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 
 import com.jakewharton.rxbinding.widget.RxTextView;
+import com.zhuinden.rxrealm.R;
 import com.zhuinden.rxrealm.application.MainActivity;
+import com.zhuinden.rxrealm.path.cat.CatKey;
 
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import flowless.ActivityUtils;
 import flowless.Bundleable;
+import flowless.Flow;
 import flowless.preset.FlowLifecycles;
 import io.realm.Case;
 import io.realm.Realm;
@@ -36,25 +40,25 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * Created by Zhuinden on 2016.07.07..
  */
-public class FirstView
+public class DogView
         extends RelativeLayout
         implements FlowLifecycles.ViewLifecycleListener, Bundleable {
     private static final String TAG = "FirstView";
 
-    public FirstView(Context context) {
+    public DogView(Context context) {
         super(context);
     }
 
-    public FirstView(Context context, AttributeSet attrs) {
+    public DogView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public FirstView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public DogView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @TargetApi(21)
-    public FirstView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public DogView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
@@ -63,6 +67,11 @@ public class FirstView
 
     @BindView(R.id.first_recyclerview)
     RecyclerView recyclerView;
+
+    @OnClick(R.id.first_go_to_cat)
+    public void goToCat() {
+        Flow.get(this).set(CatKey.create());
+    }
 
     CompositeSubscription subscription;
     Realm realm;

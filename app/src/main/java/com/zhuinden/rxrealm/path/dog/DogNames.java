@@ -1,4 +1,4 @@
-package com.zhuinden.rxrealm;
+package com.zhuinden.rxrealm.path.dog;
 
 /**
  * Created by Zhuinden on 2016.07.07..

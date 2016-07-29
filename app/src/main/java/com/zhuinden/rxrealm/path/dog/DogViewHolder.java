@@ -1,8 +1,10 @@
-package com.zhuinden.rxrealm;
+package com.zhuinden.rxrealm.path.dog;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
+
+import com.zhuinden.rxrealm.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

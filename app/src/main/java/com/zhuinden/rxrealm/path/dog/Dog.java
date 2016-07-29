@@ -1,4 +1,4 @@
-package com.zhuinden.rxrealm;
+package com.zhuinden.rxrealm.path.dog;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Index;
