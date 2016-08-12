@@ -9,7 +9,6 @@ import android.util.Log;
 import android.widget.RelativeLayout;
 
 import com.zhuinden.rxrealm.R;
-import com.zhuinden.rxrealm.application.CustomApplication;
 import com.zhuinden.rxrealm.application.injection.Injector;
 import com.zhuinden.rxrealm.util.RecyclerViewScrollBottomOnSubscribe;
 
@@ -69,6 +68,9 @@ public class CatView
     @Inject
     CatPersister catPersister;
 
+    @Inject
+    CatService catService;
+
     CompositeSubscription compositeSubscription;
 
     @Override
@@ -84,8 +86,6 @@ public class CatView
 
         recyclerView.setAdapter(new CatAdapter(getContext(),
                 realm.where(Cat.class).findAllSortedAsync(Cat.Fields.RANK.getField(), Sort.ASCENDING)));
-
-        CatService catService = CustomApplication.get().catService;
         Subscription downloadCats = Observable.create(new RecyclerViewScrollBottomOnSubscribe(recyclerView))
                 .filter(isScroll -> isScroll || realm.where(Cat.class).count() <= 0)
                 .switchMap(isScroll -> catService.getCats().subscribeOn(Schedulers.io())) //
