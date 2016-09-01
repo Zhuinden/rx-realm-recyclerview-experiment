@@ -12,7 +12,7 @@ public class RealmUtils {
     static void executeInTransaction(RealmConfiguration realmConfiguration, Realm.Transaction realmTransaction) {
         Realm realm = null;
         try {
-            realm = Realm.getInstance(Injector.INSTANCE.getComponent().realmConfiguration());
+            realm = Realm.getInstance(realmConfiguration);
             realm.executeTransaction(realmTransaction);
         } finally {
             if(realm != null) {
