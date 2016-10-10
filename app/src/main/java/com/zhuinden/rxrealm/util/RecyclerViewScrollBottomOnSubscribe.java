@@ -35,14 +35,15 @@ public final class RecyclerViewScrollBottomOnSubscribe
                 }
             }
         };
-        view.addOnScrollListener(watcher);
-
+            
         subscriber.add(new MainThreadSubscription() {
             @Override
             protected void onUnsubscribe() {
                 view.removeOnScrollListener(watcher);
             }
         });
+            
+        view.addOnScrollListener(watcher);
 
         // Emit initial value.
         subscriber.onNext(false);
