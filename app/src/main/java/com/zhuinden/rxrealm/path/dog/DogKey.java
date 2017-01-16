@@ -2,9 +2,9 @@ package com.zhuinden.rxrealm.path.dog;
 
 import com.google.auto.value.AutoValue;
 import com.zhuinden.rxrealm.R;
+import com.zhuinden.rxrealm.util.FlowAnimation;
+import com.zhuinden.rxrealm.util.LayoutKey;
 
-import flowless.preset.FlowAnimation;
-import flowless.preset.LayoutKey;
 
 /**
  * Created by Zhuinden on 2016.07.07..

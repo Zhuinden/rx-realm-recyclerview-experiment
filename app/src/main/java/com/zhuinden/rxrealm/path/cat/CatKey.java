@@ -2,9 +2,8 @@ package com.zhuinden.rxrealm.path.cat;
 
 import com.google.auto.value.AutoValue;
 import com.zhuinden.rxrealm.R;
-
-import flowless.preset.FlowAnimation;
-import flowless.preset.LayoutKey;
+import com.zhuinden.rxrealm.util.FlowAnimation;
+import com.zhuinden.rxrealm.util.LayoutKey;
 
 /**
  * Created by Zhuinden on 2016.07.28..

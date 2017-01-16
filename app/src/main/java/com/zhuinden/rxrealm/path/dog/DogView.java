@@ -102,7 +102,7 @@ public class DogView
     }
 
     @Override
-    public void onViewRestored(boolean forcedWithBundler) {
+    public void onViewRestored() {
         adapter = new RealmRecyclerViewAdapter<Dog, DogViewHolder>(getContext(), getDogs(currentName), true) {
             @Override
             public DogViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

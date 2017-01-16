@@ -81,7 +81,7 @@ public class CatView
     }
 
     @Override
-    public void onViewRestored(boolean forcedWithBundler) {
+    public void onViewRestored() {
         compositeSubscription = new CompositeSubscription();
 
         recyclerView.setAdapter(new CatAdapter(getContext(),
