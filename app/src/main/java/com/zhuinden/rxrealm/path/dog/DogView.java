@@ -36,6 +36,7 @@ import io.realm.RealmResults;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -177,4 +178,24 @@ public class DogView
                     counter++;
                 })).subscribe();
     }
+
+//    @SuppressWarnings("NewApi")
+//    private Subscription writePeriodic() {
+//        return Observable.interval(2000, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) //
+//                .takeWhile(aLong -> counter < DogNames.values().length) //
+//                .observeOn(Schedulers.io())
+//                .doOnNext(aLong -> {
+//                    try(Realm bgRealm = Realm.getDefaultInstance()) {
+//                        bgRealm.executeTransaction(realm1 -> {
+//                            long currentIndex = realm1.where(Dog.class).max(Dog.Fields.ID.getField()).longValue();
+//                            Dog dog = new Dog();
+//                            dog.setId(currentIndex + 1);
+//                            dog.setName(DogNames.values()[((Long) dog.getId()).intValue() % DogNames.values().length].name());
+//                            dog = realm1.copyToRealmOrUpdate(dog);
+//                            Log.i(TAG, "Realm write successful [" + counter + "] :: [" + dog.getName() + "].");
+//                            counter++;
+//                        });
+//                    }
+//                }).subscribe();
+//    }
 }

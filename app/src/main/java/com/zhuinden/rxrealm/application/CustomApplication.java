@@ -21,7 +21,8 @@ public class CustomApplication
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
-        realmConfiguration = new RealmConfiguration.Builder(CustomApplication.get()) //
+        Realm.init(this);
+        realmConfiguration = new RealmConfiguration.Builder() //
                 .deleteRealmIfMigrationNeeded() //
                 .initialData(new Realm.Transaction() { //
                     @Override
@@ -52,6 +53,7 @@ public class CustomApplication
                 .inMemory() //
                 .rxFactory(new RealmObservableFactory()) //
                 .build();
+        Realm.setDefaultConfiguration(realmConfiguration);
     }
 
     public static CustomApplication get() {
