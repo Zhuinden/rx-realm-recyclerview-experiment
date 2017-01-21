@@ -16,7 +16,8 @@
         android:id="@+id/first_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/first_dog_edittext"/>
+        android:layout_below="@+id/first_dog_edittext"
+        android:layout_above="@+id/first_go_to_cat"/>
 
     <Button
         android:id="@+id/first_go_to_cat"
