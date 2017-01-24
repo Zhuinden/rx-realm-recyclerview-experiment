@@ -249,7 +249,7 @@ public class DogView3
                         return getDogs(currentName);
                     }
                 })
-                .observeOn(io.reactivex.schedulers.Schedulers.io()) //
+                .observeOn(io.reactivex.schedulers.Schedulers.computation()) //
                 .map(newDogs -> Pair.with(DiffUtil.calculateDiff(new DogDiffCallback(adapter.dogs, newDogs)), newDogs)) //
                 .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread()) //
                 .subscribe(pairOfDiffResultAndNewDogs -> {

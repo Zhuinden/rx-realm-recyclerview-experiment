@@ -234,7 +234,7 @@ public class DogView2
         return RxTextView.textChanges(editText).switchMap(charSequence -> {
             currentName = charSequence.toString();
             return getDogs(currentName);
-        }).observeOn(Schedulers.io()) //
+        }).observeOn(Schedulers.computation()) //
                 .map(newDogs -> Pair.with(DiffUtil.calculateDiff(new DogDiffCallback(adapter.dogs, newDogs)), newDogs)) //
                 .observeOn(AndroidSchedulers.mainThread()) //
                 .subscribe(pairOfDiffResultAndNewDogs -> {
