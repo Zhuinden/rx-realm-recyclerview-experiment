@@ -16,7 +16,7 @@ public class CatPersister {
             Cat defaultCat = new Cat();
             long rank;
             if(realm.where(Cat.class).count() > 0) {
-                rank = realm.where(Cat.class).max(Cat.Fields.RANK.getField()).longValue();
+                rank = realm.where(Cat.class).max(CatFields.RANK).longValue();
             } else {
                 rank = 0;
             }

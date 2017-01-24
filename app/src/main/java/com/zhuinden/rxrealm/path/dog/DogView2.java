@@ -183,9 +183,9 @@ public class DogView2
 
                 RealmQuery<Dog> query = observableRealm.where(Dog.class);
                 if(selectedName != null && !"".equals(selectedName)) {
-                    query = query.contains(Dog.Fields.NAME.getField(), selectedName, Case.INSENSITIVE);
+                    query = query.contains(DogFields.NAME, selectedName, Case.INSENSITIVE);
                 }
-                final RealmResults<Dog> dogTable = query.findAllSorted(Dog.Fields.NAME.getField());
+                final RealmResults<Dog> dogTable = query.findAllSorted(DogFields.NAME);
                 subscriber.add(Subscriptions.create(() -> {
                     Log.i("DOG OBSERVABLE", "Unsubscribing.");
                     if(dogTable.isValid()) {
@@ -230,7 +230,7 @@ public class DogView2
         }
     }
 
-        private Subscription readFromEditText() {
+    private Subscription readFromEditText() {
         return RxTextView.textChanges(editText).switchMap(charSequence -> {
             currentName = charSequence.toString();
             return getDogs(currentName);
@@ -263,7 +263,7 @@ public class DogView2
         return Observable.interval(2000, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) //
                 .takeWhile(aLong -> counter < DogNames.values().length) //
                 .doOnNext(aLong -> realm.executeTransactionAsync(bgRealm -> { //
-                    long currentIndex = bgRealm.where(Dog.class).max(Dog.Fields.ID.getField()).longValue();
+                    long currentIndex = bgRealm.where(Dog.class).max(DogFields.ID).longValue();
                     Dog dog = new Dog();
                     dog.setId(currentIndex + 1);
                     dog.setName(DogNames.values()[((Long) dog.getId()).intValue() % DogNames.values().length].name());
@@ -281,7 +281,7 @@ public class DogView2
 //                .doOnNext(aLong -> {
 //                    try(Realm bgRealm = Realm.getDefaultInstance()) {
 //                        bgRealm.executeTransaction(realm1 -> {
-//                            long currentIndex = realm1.where(Dog.class).max(Dog.Fields.ID.getField()).longValue();
+//                            long currentIndex = realm1.where(Dog.class).max(DogFields.ID).longValue();
 //                            Dog dog = new Dog();
 //                            dog.setId(currentIndex + 1);
 //                            dog.setName(DogNames.values()[((Long) dog.getId()).intValue() % DogNames.values().length].name());

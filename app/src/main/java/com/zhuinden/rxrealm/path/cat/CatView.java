@@ -84,8 +84,7 @@ public class CatView
     public void onViewRestored() {
         compositeSubscription = new CompositeSubscription();
 
-        recyclerView.setAdapter(new CatAdapter(getContext(),
-                realm.where(Cat.class).findAllSortedAsync(Cat.Fields.RANK.getField(), Sort.ASCENDING)));
+        recyclerView.setAdapter(new CatAdapter(getContext(), realm.where(Cat.class).findAllSortedAsync(CatFields.RANK, Sort.ASCENDING)));
         Subscription downloadCats = Observable.create(new RecyclerViewScrollBottomOnSubscribe(recyclerView))
                 .filter(isScroll -> isScroll || realm.where(Cat.class).count() <= 0)
                 .switchMap(isScroll -> catService.getCats().subscribeOn(Schedulers.io())) //
