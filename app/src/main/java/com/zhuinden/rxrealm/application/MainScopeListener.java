@@ -1,8 +1,6 @@
 package com.zhuinden.rxrealm.application;
 
-import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -10,9 +8,6 @@ import com.zhuinden.rxrealm.application.injection.Injector;
 import com.zhuinden.rxrealm.path.cat.Cat;
 import com.zhuinden.rxrealm.path.dog.Dog;
 
-import java.util.concurrent.Callable;
-
-import io.realm.DynamicRealm;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -21,11 +16,7 @@ import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
-
-import static com.zhuinden.rxrealm.path.dog.DogNames.Dog;
 
 /**
  * Created by Zhuinden on 2016.07.07..
@@ -54,7 +45,7 @@ public class MainScopeListener
 
     final HandlerThread handlerThread;
 
-    Scheduler looperScheduler;
+    public static Scheduler LOOPER_SCHEDULER;
 
     Observable<Realm> realmObservable;
     Observable<RealmResults<Dog>> dogTableListener;
@@ -76,9 +67,9 @@ public class MainScopeListener
         handlerThread.start();
 
         synchronized(handlerThread) {
-            looperScheduler = AndroidSchedulers.from(handlerThread.getLooper());
+            LOOPER_SCHEDULER = AndroidSchedulers.from(handlerThread.getLooper());
         }
-        realmObservable = realm.asObservable().unsubscribeOn(looperScheduler).subscribeOn(looperScheduler);
+        realmObservable = realm.asObservable().unsubscribeOn(LOOPER_SCHEDULER).subscribeOn(LOOPER_SCHEDULER);
         realmSubscription = realmObservable.subscribe(realm12 -> {
             Log.i("REALM SUBSCRIPTION", "An event occurred on background thread!");
         });
@@ -103,7 +94,7 @@ public class MainScopeListener
 
                 subscriber.onNext(dogTable);
             }
-        }).subscribeOn(looperScheduler).unsubscribeOn(looperScheduler);
+        }).subscribeOn(LOOPER_SCHEDULER).unsubscribeOn(LOOPER_SCHEDULER);
 
         catTableListener = Observable.create(new Observable.OnSubscribe<RealmResults<Cat>>() {
             @Override
@@ -126,7 +117,7 @@ public class MainScopeListener
 
                 subscriber.onNext(catTable);
             }
-        }).subscribeOn(looperScheduler).unsubscribeOn(looperScheduler);
+        }).subscribeOn(LOOPER_SCHEDULER).unsubscribeOn(LOOPER_SCHEDULER);
         
         dogSubscription = dogTableListener.subscribe(dogs -> {
             Log.i("DOG SUBSCRIPTION", "Event happened for DOG table!");

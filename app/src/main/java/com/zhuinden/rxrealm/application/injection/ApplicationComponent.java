@@ -3,6 +3,7 @@ package com.zhuinden.rxrealm.application.injection;
 import com.zhuinden.rxrealm.path.cat.CatModule;
 import com.zhuinden.rxrealm.path.cat.CatView;
 import com.zhuinden.rxrealm.path.dog.DogView;
+import com.zhuinden.rxrealm.path.dog.DogView2;
 
 import javax.inject.Singleton;
 
@@ -18,6 +19,8 @@ public interface ApplicationComponent {
     RealmConfiguration realmConfiguration();
 
     void inject(DogView dogView);
+
+    void inject(DogView2 dogView2);
 
     void inject(CatView catView);
 }
