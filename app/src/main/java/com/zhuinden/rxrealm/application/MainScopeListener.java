@@ -67,28 +67,7 @@ public class MainScopeListener
         synchronized(handlerThread) {
             looperScheduler = AndroidSchedulers.from(handlerThread.getLooper());
         }
-        realmObservable = Observable.create(new Observable.OnSubscribe<Realm>() {
-            @Override
-            public void call(Subscriber<? super Realm> subscriber) {
-                final Realm observableRealm = Realm.getDefaultInstance();
-                observableRealm.setAutoRefresh(true);
-                final RealmChangeListener<Realm> listener = realm1 -> {
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(observableRealm);
-                    }
-                };
-                subscriber.add(Subscriptions.create(() -> {
-                    observableRealm.removeChangeListener(listener);
-                    observableRealm.setAutoRefresh(false);
-                    observableRealm.close();
-                }));
-                observableRealm.addChangeListener(listener);
-
-                // Immediately call onNext with the current value, as due to Realm's auto-update, it will be the latest
-                // value.
-                subscriber.onNext(observableRealm);
-            }
-        });
+        realmObservable = realm.asObservable();
         realmSubscription = realmObservable.unsubscribeOn(looperScheduler).subscribeOn(looperScheduler).subscribe(realm12 -> {
             Log.i("REALM SUBSCRIPTION", "An event occurred on background thread!");
         });
