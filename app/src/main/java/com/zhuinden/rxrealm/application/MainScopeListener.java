@@ -44,8 +44,10 @@ public class MainScopeListener
     Realm realm;
 
     final HandlerThread handlerThread;
+    final HandlerThread handlerThread2;
 
     public static Scheduler LOOPER_SCHEDULER;
+    public static io.reactivex.Scheduler LOOPER_SCHEDULER_2;
 
     Observable<Realm> realmObservable;
     Observable<RealmResults<Dog>> dogTableListener;
@@ -126,6 +128,15 @@ public class MainScopeListener
         catSubscription = catTableListener.subscribe(cats -> {
             Log.i("CAT SUBSCRIPTION", "Event happened for CAT table!");
         });
+
+
+        // RXJAVA 2 EXPERIMENT: a background Realm looper, this is an experiment.
+        handlerThread2 = new HandlerThread("REALM_LOOPER_2");
+        handlerThread2.start();
+
+        synchronized(handlerThread2) {
+            LOOPER_SCHEDULER_2 = io.reactivex.android.schedulers.AndroidSchedulers.from(handlerThread2.getLooper());
+        }
     }
 
     public void configureRealmHolder(MainActivity.RealmHolder realmHolder) {
