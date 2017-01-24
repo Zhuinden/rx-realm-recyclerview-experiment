@@ -18,9 +18,11 @@ import com.jakewharton.rxbinding.widget.RxTextView;
 import com.zhuinden.rxrealm.R;
 import com.zhuinden.rxrealm.application.MainScopeListener;
 import com.zhuinden.rxrealm.application.injection.Injector;
-import com.zhuinden.rxrealm.path.cat.Cat;
 import com.zhuinden.rxrealm.path.cat.CatKey;
 
+import org.javatuples.Pair;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -37,12 +39,12 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmConfiguration;
 import io.realm.RealmQuery;
-import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
@@ -111,7 +113,7 @@ public class DogView2
     }
 
     public static class DogAdapter extends RecyclerView.Adapter<DogViewHolder> {
-        private List<Dog> dogs;
+        private List<Dog> dogs = Collections.emptyList();
 
         @Override
         public DogViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -129,9 +131,8 @@ public class DogView2
             return dogs == null ? 0 : dogs.size();
         }
 
-        public void updateData(List<Dog> dogs) {
+        public void setNewData(List<Dog> dogs) {
             this.dogs = dogs;
-            notifyDataSetChanged();
         }
     }
 
@@ -210,7 +211,7 @@ public class DogView2
 
         @Override
         public int getOldListSize() {
-            return oldDogs.size();
+            return oldDogs == null ? 0 : oldDogs.size();
         }
 
         @Override
@@ -229,32 +230,34 @@ public class DogView2
         }
     }
 
-    /*
         private Subscription readFromEditText() {
         return RxTextView.textChanges(editText).switchMap(charSequence -> {
             currentName = charSequence.toString();
             return getDogs(currentName);
         }).observeOn(Schedulers.io()) //
-                .map(newDogs -> DiffUtil.calculateDiff(new DogDiffCallback(adapter.getDogs(), newDogs))) //
+                .map(newDogs -> Pair.with(DiffUtil.calculateDiff(new DogDiffCallback(adapter.dogs, newDogs)), newDogs)) //
                 .observeOn(AndroidSchedulers.mainThread()) //
-                .subscribe(diffResult -> {
-                    adapter.updateData(newDogs);
+                .subscribe(pairOfDiffResultAndNewDogs -> {
+                    List<Dog> newDogs = pairOfDiffResultAndNewDogs.getValue1();
+                    adapter.setNewData(newDogs);
+                    DiffUtil.DiffResult diffResult = pairOfDiffResultAndNewDogs.getValue0();
                     diffResult.dispatchUpdatesTo(adapter);
                     //Log.d(TAG, "Update with size [" + dogs.size() + "] for name [" + currentName + "]");
-                    //adapter.updateData(dogs);
+                    //adapter.setNewData(dogs);
         });
     }
-     */
 
-    private Subscription readFromEditText() {
+    /*private Subscription readFromEditText() {
         return RxTextView.textChanges(editText).switchMap(charSequence -> {
             currentName = charSequence.toString();
             return getDogs(currentName);
         }).observeOn(AndroidSchedulers.mainThread()).subscribe(dogs -> {
             Log.d(TAG, "Update with size [" + dogs.size() + "] for name [" + currentName + "]");
-            adapter.updateData(dogs);
+            adapter.setNewData(dogs);
+            adapter.notifyDataSetChanged();
         });
     }
+    */
 
     private Subscription writePeriodic() {
         return Observable.interval(2000, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) //
