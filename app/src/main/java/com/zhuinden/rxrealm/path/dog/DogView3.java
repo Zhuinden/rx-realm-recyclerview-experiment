@@ -21,6 +21,7 @@ import com.zhuinden.rxrealm.application.injection.Injector;
 import com.zhuinden.rxrealm.path.cat.CatKey;
 
 import org.javatuples.Pair;
+import org.reactivestreams.Publisher;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,9 +36,9 @@ import flowless.Bundleable;
 import flowless.Flow;
 import flowless.preset.FlowLifecycles;
 import hu.akarnokd.rxjava.interop.RxJavaInterop;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
@@ -169,25 +170,17 @@ public class DogView3
         }
     }
 
-    /*@Override
-            public void call(Subscriber<? super List<Dog>> subscriber) {
-
-            }
-        }*/
-
-    private io.reactivex.Observable<List<Dog>> getDogs(final String selectedName) {
-        return io.reactivex.Observable.create(new ObservableOnSubscribe<List<Dog>>() {
+    private io.reactivex.Flowable<List<Dog>> getDogs(final String selectedName) {
+        return io.reactivex.Flowable.create(new FlowableOnSubscribe<List<Dog>>() {
             @Override
-            public void subscribe(ObservableEmitter<List<Dog>> emitter)
+            public void subscribe(FlowableEmitter<List<Dog>> emitter)
                     throws Exception {
-                Log.i("DOG OBSERVABLE", "Creating observable for [" + selectedName + "]");
+                Log.i("DOG FLOWABLE", "Creating flowable for [" + selectedName + "]");
                 RealmConfiguration realmConfiguration = realm.getConfiguration();
                 Realm observableRealm = Realm.getInstance(realmConfiguration);
 
                 final RealmChangeListener<RealmResults<Dog>> listener = dogs -> {
-                    if(!emitter.isDisposed()) {
-                        emitter.onNext(observableRealm.copyFromRealm(dogs));
-                    }
+                    emitter.onNext(observableRealm.copyFromRealm(dogs));
                 };
 
                 RealmQuery<Dog> query = observableRealm.where(Dog.class);
@@ -196,7 +189,7 @@ public class DogView3
                 }
                 final RealmResults<Dog> dogTable = query.findAllSorted(DogFields.NAME);
                 emitter.setDisposable(Disposables.fromRunnable(() -> {
-                    Log.i("DOG OBSERVABLE", "Unsubscribing.");
+                    Log.i("DOG FLOWABLE", "Unsubscribing.");
                     if(dogTable.isValid()) {
                         dogTable.removeChangeListener(listener);
                     }
@@ -205,7 +198,7 @@ public class DogView3
                 dogTable.addChangeListener(listener);
                 emitter.onNext(observableRealm.copyFromRealm(dogTable));
             }
-        }).subscribeOn(MainScopeListener.LOOPER_SCHEDULER_2).unsubscribeOn(MainScopeListener.LOOPER_SCHEDULER_2);
+        }, BackpressureStrategy.LATEST).subscribeOn(MainScopeListener.LOOPER_SCHEDULER_2).unsubscribeOn(MainScopeListener.LOOPER_SCHEDULER_2);
     }
 
     public static class DogDiffCallback
@@ -240,10 +233,10 @@ public class DogView3
     }
 
     private Disposable readFromEditText() {
-        return RxJavaInterop.toV2Observable(RxTextView.textChanges(editText))
-                .switchMap(new Function<CharSequence, ObservableSource<List<Dog>>>() {
+        return RxJavaInterop.toV2Flowable(RxTextView.textChanges(editText))
+                .switchMap(new Function<CharSequence, Publisher<List<Dog>>>() {
                     @Override
-                    public ObservableSource<List<Dog>> apply(CharSequence charSequence)
+                    public Publisher<List<Dog>> apply(CharSequence charSequence)
                             throws Exception {
                         currentName = charSequence.toString();
                         return getDogs(currentName);
