@@ -1,7 +1,7 @@
 package com.zhuinden.rxrealm.path.cat;
 
+import io.reactivex.Observable;
 import retrofit2.http.GET;
-import rx.Observable;
 
 /**
  * Created by Zhuinden on 2016.07.29..

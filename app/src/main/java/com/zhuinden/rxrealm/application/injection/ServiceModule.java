@@ -7,7 +7,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 /**
@@ -19,8 +19,7 @@ public class ServiceModule {
     @Singleton
     public CatService catService() {
         return new Retrofit.Builder().addConverterFactory(SimpleXmlConverterFactory.create())
-                .baseUrl("http://thecatapi.com/")
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .baseUrl("http://thecatapi.com/").addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
                 .create(CatService.class);
     }

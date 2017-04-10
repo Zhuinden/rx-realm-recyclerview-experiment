@@ -2,15 +2,15 @@ package com.zhuinden.rxrealm.util;
 
 import android.support.v7.widget.RecyclerView;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.MainThreadSubscription;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.MainThreadDisposable;
 
 /**
  * Created by Zhuinden on 2016.07.29..
  */
 public final class RecyclerViewScrollBottomOnSubscribe
-        implements Observable.OnSubscribe<Boolean> {
+        implements ObservableOnSubscribe<Boolean> {
     final RecyclerView view;
 
     public RecyclerViewScrollBottomOnSubscribe(RecyclerView view) {
@@ -18,8 +18,9 @@ public final class RecyclerViewScrollBottomOnSubscribe
     }
 
     @Override
-    public void call(final Subscriber<? super Boolean> subscriber) {
-        MainThreadSubscription.verifyMainThread();
+    public void subscribe(ObservableEmitter<Boolean> emitter)
+            throws Exception {
+        MainThreadDisposable.verifyMainThread();
 
         final RecyclerView.OnScrollListener watcher = new RecyclerView.OnScrollListener() {
             @Override
@@ -30,23 +31,23 @@ public final class RecyclerViewScrollBottomOnSubscribe
             }
 
             public void onScrolledToBottom() {
-                if(!subscriber.isUnsubscribed()) {
-                    subscriber.onNext(true);
+                if(!emitter.isDisposed()) {
+                    emitter.onNext(true);
                 }
             }
         };
-            
-        subscriber.add(new MainThreadSubscription() {
+
+        emitter.setDisposable(new MainThreadDisposable() {
             @Override
-            protected void onUnsubscribe() {
+            protected void onDispose() {
                 view.removeOnScrollListener(watcher);
             }
         });
-            
+
         view.addOnScrollListener(watcher);
 
         // Emit initial value.
-        subscriber.onNext(false);
+        emitter.onNext(false);
     }
 }
 

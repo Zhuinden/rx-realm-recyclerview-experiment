@@ -89,11 +89,11 @@ dependencies {
 
     // cat
     compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:retrofit:2.2.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.2.0'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.github.bumptech.glide:okhttp3-integration:1.4.0@aar'
     compile('com.squareup.retrofit2:converter-simplexml:2.1.0') {
         exclude group: 'org.simpleframework', module: 'simple-xml'
     }
-    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
 }
