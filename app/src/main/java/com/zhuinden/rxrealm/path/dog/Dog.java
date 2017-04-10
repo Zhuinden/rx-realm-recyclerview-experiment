@@ -29,19 +29,4 @@ public class Dog extends RealmObject {
     public void setName(String name) {
         this.name = name;
     }
-
-    public static enum Fields {
-        ID("id"),
-        NAME("name");
-
-        private String field;
-
-        private Fields(String field) {
-            this.field = field;
-        }
-
-        public String getField() {
-            return field;
-        }
-    }
 }

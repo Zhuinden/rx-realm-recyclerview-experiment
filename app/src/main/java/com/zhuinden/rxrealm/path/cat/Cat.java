@@ -48,21 +48,4 @@ public class Cat
     public void setRank(long rank) {
         this.rank = rank;
     }
-
-    public enum Fields {
-        ID("id"),
-        URL("url"),
-        SOURCE_URL("sourceUrl"),
-        RANK("rank");
-
-        private String field;
-
-        private Fields(String field) {
-            this.field = field;
-        }
-
-        public String getField() {
-            return field;
-        }
-    }
 }
