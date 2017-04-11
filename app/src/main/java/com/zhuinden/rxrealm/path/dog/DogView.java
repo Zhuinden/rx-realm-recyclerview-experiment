@@ -154,14 +154,10 @@ public class DogView
     }
 
     private Subscription readFromEditText() {
-        return RxTextView.textChanges(editText).switchMap(charSequence -> {
-            currentName = charSequence.toString();
-            return getDogs(currentName).asObservable();
-        }).filter(RealmResults::isLoaded) //
-                .subscribe(dogs -> {
-                    Log.d(TAG, "Update with size [" + dogs.size() + "] for name [" + currentName + "]");
-                    adapter.updateData(dogs);
-                });
+        return RxTextView.textChanges(editText).doOnNext(charSequence -> currentName = charSequence.toString()) //
+                .switchMap(charSequence -> getDogs(currentName).asObservable()) //
+                .filter(RealmResults::isLoaded) //
+                .subscribe(dogs -> adapter.updateData(dogs));
     }
 
     private Subscription writePeriodic() {

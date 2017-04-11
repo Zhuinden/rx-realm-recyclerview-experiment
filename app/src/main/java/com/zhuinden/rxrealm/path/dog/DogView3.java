@@ -2,6 +2,7 @@ package com.zhuinden.rxrealm.path.dog;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
@@ -107,6 +108,7 @@ public class DogView3
     String currentName;
 
     @Override
+    @SuppressWarnings("NewApi")
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
@@ -139,18 +141,52 @@ public class DogView3
         }
     }
 
+    RealmChangeListener<Realm> realmRealmChangeListener = element -> Log.i("DOG_",
+            "REALM CHANGE HAPPENED [" + Thread.currentThread() + "]");
+
     @Override
+    @SuppressWarnings("NewApi")
     public void onViewRestored() {
         adapter = new DogAdapter();
         recyclerView.setAdapter(adapter);
 
         subscription = new CompositeDisposable();
         subscription.add(readFromEditText());
-        subscription.add(writePeriodic());
+        //subscription.add(writePeriodic());
+
+        realm.addChangeListener(realmRealmChangeListener);
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try(Realm r = Realm.getDefaultInstance()) {
+                    r.executeTransaction(realm -> {
+                        Dog dog = new Dog();
+                        dog.setId(5151L);
+                        dog.setName("HELLO!");
+                        realm.insertOrUpdate(dog);
+                        Log.i("DOG", "INSERTING DOG [" + dog + "] [" + Thread.currentThread() + "]");
+                    });
+                    Log.i("DOG", "INSERTED DOG! [" + Thread.currentThread() + "]");
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                Dog dog = realm.where(Dog.class).equalTo(DogFields.ID, 5151L).findFirst();
+                if(dog != null) {
+                    Log.i("DOG", "DOG IS FOUND [" + dog + "] [" + Thread.currentThread() + "]");
+                } else {
+                    Log.i("DOG", "SAD :( [" + Thread.currentThread() + "]");
+                }
+            }
+        }.execute();
     }
 
     @Override
     public void onViewDestroyed(boolean removedByFlow) {
+        realm.removeChangeListener(realmRealmChangeListener);
         subscription.dispose();
     }
 

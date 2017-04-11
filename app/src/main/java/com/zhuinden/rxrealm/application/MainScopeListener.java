@@ -122,11 +122,11 @@ public class MainScopeListener
         }).subscribeOn(LOOPER_SCHEDULER).unsubscribeOn(LOOPER_SCHEDULER);
         
         dogSubscription = dogTableListener.subscribe(dogs -> {
-            Log.i("DOG SUBSCRIPTION", "Event happened for DOG table!");
+            Log.i("DOG SUBSCRIPTION", "Event happened for DOG table! [" + Thread.currentThread() + "]");
         });
 
         catSubscription = catTableListener.subscribe(cats -> {
-            Log.i("CAT SUBSCRIPTION", "Event happened for CAT table!");
+            Log.i("CAT SUBSCRIPTION", "Event happened for CAT table! [" + Thread.currentThread() + "]");
         });
 
 
