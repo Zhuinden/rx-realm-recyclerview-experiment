@@ -13,13 +13,12 @@ public enum Injector {
     Injector() {
     }
 
-    public ApplicationComponent getComponent() {
-        return applicationComponent;
-    }
-
-    public ApplicationComponent initializeComponent(Realm realm) {
+    public void initializeComponent(Realm realm) {
         RealmModule realmModule = new RealmModule(realm);
         applicationComponent = DaggerApplicationComponent.builder().realmModule(realmModule).build();
-        return applicationComponent;
+    }
+
+    public static ApplicationComponent get() {
+        return INSTANCE.applicationComponent;
     }
 }

@@ -1,6 +1,5 @@
 package com.zhuinden.rxrealm.path.cat;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -11,11 +10,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.zhuinden.rxrealm.R;
+import com.zhuinden.simplestack.navigator.Navigator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import flowless.ActivityUtils;
 
 /**
  * Created by Zhuinden on 2016.07.29..
@@ -29,7 +28,7 @@ public class CatViewHolder
         if(_sourceUrl != null) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(_sourceUrl));
-            ActivityUtils.getActivity(view.getContext()).startActivity(intent);
+            Navigator.findActivity(view.getContext()).startActivity(intent);
         }
     }
 
@@ -44,9 +43,9 @@ public class CatViewHolder
         ButterKnife.bind(this, itemView);
     }
 
-    public void bind(Context context, Cat cat) {
+    public void bind(Cat cat) {
         if(cat != null) {
-            Glide.with(context).load(cat.getUrl()).diskCacheStrategy(DiskCacheStrategy.ALL).into(image);
+            Glide.with(itemView.getContext()).load(cat.getUrl()).diskCacheStrategy(DiskCacheStrategy.ALL).into(image);
             sourceUrl.setText(cat.getSourceUrl());
             _sourceUrl = cat.getSourceUrl();
         } else {
@@ -54,6 +53,5 @@ public class CatViewHolder
             sourceUrl.setText("");
             _sourceUrl = null;
         }
-
     }
 }

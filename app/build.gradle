@@ -1,11 +1,9 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    compileSdkVersion 26
+    buildToolsVersion '26.0.3'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -14,7 +12,7 @@ android {
     defaultConfig {
         applicationId "com.zhuinden.rxrealm"
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }
@@ -41,59 +39,46 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    //compile "com.android.support:cardview-v7:23.4.0"
-    //compile "com.android.support:design:23.4.0"
-    compile "com.android.support:recyclerview-v7:25.1.0"
-    compile "com.android.support:support-v4:25.1.0"
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    //implementation "com.android.support:cardview-v7:23.4.0"
+    //implementation "com.android.support:design:23.4.0"
+    implementation "com.android.support:recyclerview-v7:26.1.0"
+    implementation "com.android.support:support-v4:26.1.0"
 
-    apt 'com.jakewharton:butterknife-compiler:8.0.1'
-    compile 'com.jakewharton:butterknife:8.0.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.jakewharton:butterknife:8.8.1'
 
-    apt 'frankiesardo:auto-parcel:1.0.1'
+    annotationProcessor 'frankiesardo:auto-parcel:1.0.3'
 
-    apt 'com.google.dagger:dagger-compiler:2.0'
-    compile 'com.google.dagger:dagger:2.0'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.14.1'
+    implementation 'com.google.dagger:dagger:2.14.1'
     provided 'org.glassfish:javax.annotation:10.0-b28'
 
-    compile 'de.greenrobot:eventbus:2.4.1'
+    implementation 'de.greenrobot:eventbus:2.4.1'
 
-    apt 'com.bluelinelabs:logansquare-compiler:1.3.4'
-    compile 'com.bluelinelabs:logansquare:1.3.4'
+    annotationProcessor 'com.bluelinelabs:logansquare-compiler:1.3.7'
+    implementation 'com.bluelinelabs:logansquare:1.3.7'
 
-    compile 'com.github.Zhuinden:flowless:1.0-RC2'
+    implementation 'com.github.Zhuinden:simple-stack:1.8.2'
 
-    compile 'io.realm:android-adapters:1.3.0'
-    apt 'dk.ilios:realmfieldnameshelper:1.1.0'
+    implementation 'io.realm:android-adapters:2.1.1'
+    annotationProcessor 'dk.ilios:realmfieldnameshelper:1.1.1'
 
-    compile 'io.reactivex:rxjava:1.1.6'
-    compile 'io.reactivex:rxandroid:1.2.1'
+    implementation "io.reactivex.rxjava2:rxjava:2.1.8"
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.0'
 
-    compile "io.reactivex.rxjava2:rxjava:2.0.4"
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile "com.github.akarnokd:rxjava2-interop:0.8.3"
-
-    compile group: 'org.javatuples', name: 'javatuples', version: '1.2'
-
-    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
-    compile 'com.jakewharton.rxbinding:rxbinding-support-v4:0.4.0'
-    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
-    compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7:0.4.0'
-
-    // dagger
-    compile 'com.google.dagger:dagger:2.6'
-    provided 'org.glassfish:javax.annotation:10.0-b28'
-    apt 'com.google.dagger:dagger-compiler:2.6'
+    implementation group: 'org.javatuples', name: 'javatuples', version: '1.2'
 
     // cat
-    compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.squareup.retrofit2:retrofit:2.2.0'
-    compile 'com.squareup.retrofit2:adapter-rxjava2:2.2.0'
-    compile 'com.squareup.okhttp3:okhttp:3.4.1'
-    compile 'com.github.bumptech.glide:okhttp3-integration:1.4.0@aar'
-    compile('com.squareup.retrofit2:converter-simplexml:2.1.0') {
+    implementation 'com.github.bumptech.glide:glide:3.8.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.0'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:1.5.0@aar'
+    implementation('com.squareup.retrofit2:converter-simplexml:2.3.0') {
         exclude group: 'org.simpleframework', module: 'simple-xml'
     }
 }

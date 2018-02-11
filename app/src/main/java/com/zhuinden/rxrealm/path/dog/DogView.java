@@ -2,7 +2,7 @@ package com.zhuinden.rxrealm.path.dog;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,10 +13,13 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 
-import com.jakewharton.rxbinding.widget.RxTextView;
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.zhuinden.rxrealm.R;
 import com.zhuinden.rxrealm.application.injection.Injector;
 import com.zhuinden.rxrealm.path.cat.CatKey;
+import com.zhuinden.simplestack.Bundleable;
+import com.zhuinden.simplestack.navigator.Navigator;
+import com.zhuinden.statebundle.StateBundle;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,25 +28,23 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import flowless.Bundleable;
-import flowless.Flow;
-import flowless.preset.FlowLifecycles;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by Zhuinden on 2016.07.07..
  */
 public class DogView
         extends RelativeLayout
-        implements FlowLifecycles.ViewLifecycleListener, Bundleable {
+        implements Bundleable {
     private static final String TAG = "DogView";
 
     public DogView(Context context) {
@@ -69,7 +70,7 @@ public class DogView
 
     private void init() {
         if(!isInEditMode()) {
-            Injector.INSTANCE.getComponent().inject(this);
+            Injector.get().inject(this);
         }
     }
 
@@ -81,10 +82,10 @@ public class DogView
 
     @OnClick(R.id.first_go_to_cat)
     public void goToCat() {
-        Flow.get(this).set(CatKey.create());
+        Navigator.getBackstack(getContext()).goTo(CatKey.create());
     }
 
-    CompositeSubscription subscription;
+    CompositeDisposable subscription;
 
     @Inject
     Realm realm;
@@ -101,9 +102,11 @@ public class DogView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
     }
 
+
     @Override
-    public void onViewRestored() {
-        adapter = new RealmRecyclerViewAdapter<Dog, DogViewHolder>(getContext(), getDogs(currentName), true) {
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        adapter = new RealmRecyclerViewAdapter<Dog, DogViewHolder>(getDogs(currentName), true) {
             @Override
             public DogViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 return new DogViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.view_dog_item, parent, false));
@@ -117,26 +120,28 @@ public class DogView
         };
         recyclerView.setAdapter(adapter);
 
-        subscription = new CompositeSubscription();
+        subscription = new CompositeDisposable();
         subscription.add(readFromEditText());
         subscription.add(writePeriodic());
     }
 
     @Override
-    public void onViewDestroyed(boolean removedByFlow) {
-        subscription.unsubscribe();
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        subscription.dispose();
     }
 
+    @NonNull
     @Override
-    public Bundle toBundle() {
-        Bundle bundle = new Bundle();
+    public StateBundle toBundle() {
+        StateBundle bundle = new StateBundle();
         bundle.putInt("counter", counter);
         bundle.putString("currentName", currentName);
         return bundle;
     }
 
     @Override
-    public void fromBundle(@Nullable Bundle bundle) {
+    public void fromBundle(@Nullable StateBundle bundle) {
         if(bundle != null) {
             counter = bundle.getInt("counter");
             currentName = bundle.getString("currentName", null);
@@ -153,14 +158,15 @@ public class DogView
         return results;
     }
 
-    private Subscription readFromEditText() {
-        return RxTextView.textChanges(editText).doOnNext(charSequence -> currentName = charSequence.toString()) //
-                .switchMap(charSequence -> getDogs(currentName).asObservable()) //
+    private Disposable readFromEditText() {
+        return RxTextView.textChanges(editText).doOnNext(charSequence -> currentName = charSequence.toString())
+                .toFlowable(BackpressureStrategy.LATEST)//
+                .switchMap(charSequence -> getDogs(currentName).asFlowable()) //
                 .filter(RealmResults::isLoaded) //
                 .subscribe(dogs -> adapter.updateData(dogs));
     }
 
-    private Subscription writePeriodic() {
+    private Disposable writePeriodic() {
         return Observable.interval(2000, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) //
                 .takeWhile(aLong -> counter < DogNames.values().length) //
                 .doOnNext(aLong -> realm.executeTransactionAsync(bgRealm -> { //

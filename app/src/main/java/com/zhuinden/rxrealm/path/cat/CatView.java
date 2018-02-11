@@ -16,7 +16,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import flowless.preset.FlowLifecycles;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -28,8 +27,7 @@ import io.realm.Sort;
  * Created by Zhuinden on 2016.07.28..
  */
 public class CatView
-        extends RelativeLayout
-        implements FlowLifecycles.ViewLifecycleListener {
+        extends RelativeLayout {
     private static final String TAG = "CatView";
 
     public CatView(Context context) {
@@ -55,7 +53,7 @@ public class CatView
 
     private void init() {
         if(!isInEditMode()) {
-            Injector.INSTANCE.getComponent().inject(this);
+            Injector.get().inject(this);
         }
     }
 
@@ -81,10 +79,12 @@ public class CatView
     }
 
     @Override
-    public void onViewRestored() {
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
         compositeSubscription = new CompositeDisposable();
 
-        recyclerView.setAdapter(new CatAdapter(getContext(), realm.where(Cat.class).findAllSortedAsync(CatFields.RANK, Sort.ASCENDING)));
+        recyclerView.setAdapter(new CatAdapter(realm.where(Cat.class).sort(CatFields.RANK,
+                                                                           Sort.ASCENDING).findAllAsync()));
         Disposable downloadCats = Observable.create(new RecyclerViewScrollBottomOnSubscribe(recyclerView))
                 .filter(isScroll -> isScroll || realm.where(Cat.class).count() <= 0)
                 .switchMap(isScroll -> catService.getCats().subscribeOn(Schedulers.io())) //
@@ -98,7 +98,8 @@ public class CatView
     }
 
     @Override
-    public void onViewDestroyed(boolean removedByFlow) {
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
         if(!compositeSubscription.isDisposed()) {
             compositeSubscription.dispose();
         }

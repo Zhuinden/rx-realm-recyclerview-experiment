@@ -1,9 +1,13 @@
 package com.zhuinden.rxrealm.path.dog;
 
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
 import com.google.auto.value.AutoValue;
 import com.zhuinden.rxrealm.R;
-import com.zhuinden.rxrealm.util.FlowAnimation;
-import com.zhuinden.rxrealm.util.LayoutKey;
+import com.zhuinden.simplestack.navigator.StateKey;
+import com.zhuinden.simplestack.navigator.ViewChangeHandler;
+import com.zhuinden.simplestack.navigator.changehandlers.SegueViewChangeHandler;
 
 
 /**
@@ -11,8 +15,19 @@ import com.zhuinden.rxrealm.util.LayoutKey;
  */
 @AutoValue
 public abstract class DogKey
-        implements LayoutKey {
+        implements StateKey, Parcelable {
     public static DogKey create() {
-        return new AutoValue_DogKey(R.layout.path_first, FlowAnimation.SEGUE);
+        return new AutoValue_DogKey();
+    }
+
+    @Override
+    public int layout() {
+        return R.layout.path_first;
+    }
+
+    @NonNull
+    @Override
+    public ViewChangeHandler viewChangeHandler() {
+        return new SegueViewChangeHandler();
     }
 }

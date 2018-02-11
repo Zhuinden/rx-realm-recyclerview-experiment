@@ -19,7 +19,7 @@ public class RealmModule {
     }
 
     @Provides
-    public Realm realm() {
+    public Realm uiThreadRealm() {
         return realm;
     }
 

@@ -8,39 +8,23 @@ import com.zhuinden.rxrealm.application.injection.Injector;
 import com.zhuinden.rxrealm.path.cat.Cat;
 import com.zhuinden.rxrealm.path.dog.Dog;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
+import io.reactivex.functions.Consumer;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 
 /**
  * Created by Zhuinden on 2016.07.07..
  */
 public class MainScopeListener
         extends Fragment {
-//    Realm realm;
-//
-//    public MainScopeListener() {
-//        setRetainInstance(true);
-//        realm = Realm.getInstance(CustomApplication.get().realmConfiguration);
-//        Injector.INSTANCE.initializeComponent(realm);
-//    }
-//
-//    public void configureRealmHolder(MainActivity.RealmHolder realmHolder) {
-//        realmHolder.realm = this.realm;
-//    }
-//
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        realm.close();
-//    }
-
     Realm realm;
 
     final HandlerThread handlerThread;
@@ -53,12 +37,10 @@ public class MainScopeListener
     Observable<RealmResults<Dog>> dogTableListener;
     Observable<RealmResults<Cat>> catTableListener;
 
-    Subscription realmSubscription;
-    Subscription dogSubscription;
-    Subscription catSubscription;
-
-
-
+    Disposable realmDisposable;
+    Disposable dogDisposable;
+    Disposable catDisposable;
+    
     public MainScopeListener() {
         setRetainInstance(true);
         realm = Realm.getDefaultInstance();
@@ -71,22 +53,26 @@ public class MainScopeListener
         synchronized(handlerThread) {
             LOOPER_SCHEDULER = AndroidSchedulers.from(handlerThread.getLooper());
         }
-        realmObservable = realm.asObservable().unsubscribeOn(LOOPER_SCHEDULER).subscribeOn(LOOPER_SCHEDULER);
-        realmSubscription = realmObservable.subscribe(realm12 -> {
-            Log.i("REALM SUBSCRIPTION", "An event occurred on background thread!");
-        });
-        dogTableListener = Observable.create(new Observable.OnSubscribe<RealmResults<Dog>>() {
+        realmObservable = realm.asFlowable().toObservable().unsubscribeOn(LOOPER_SCHEDULER).subscribeOn(LOOPER_SCHEDULER);
+        realmDisposable = realmObservable.subscribe(new Consumer<Realm>() {
             @Override
-            public void call(Subscriber<? super RealmResults<Dog>> subscriber) {
+            public void accept(Realm realm)
+                    throws Exception {
+                Log.i("REALM SUBSCRIPTION", "An event occurred on background thread!");
+            }
+        });
+        dogTableListener = Observable.create(new ObservableOnSubscribe<RealmResults<Dog>>() {
+            @Override
+            public void subscribe(ObservableEmitter<RealmResults<Dog>> subscriber) {
                 final Realm observableRealm = Realm.getInstance(realm.getConfiguration());
                 final RealmResults<Dog> dogTable = observableRealm.where(Dog.class).findAll();
 
                 final RealmChangeListener<RealmResults<Dog>> listener = dogs -> {
-                    if (!subscriber.isUnsubscribed()) {
+                    if(!subscriber.isDisposed()) {
                         subscriber.onNext(dogs);
                     }
                 };
-                subscriber.add(Subscriptions.create(() -> {
+                subscriber.setDisposable(Disposables.fromAction(() -> {
                     if(dogTable.isValid()) {
                         dogTable.removeChangeListener(listener);
                     }
@@ -98,18 +84,18 @@ public class MainScopeListener
             }
         }).subscribeOn(LOOPER_SCHEDULER).unsubscribeOn(LOOPER_SCHEDULER);
 
-        catTableListener = Observable.create(new Observable.OnSubscribe<RealmResults<Cat>>() {
+        catTableListener = Observable.create(new ObservableOnSubscribe<RealmResults<Cat>>() {
             @Override
-            public void call(Subscriber<? super RealmResults<Cat>> subscriber) {
+            public void subscribe(ObservableEmitter<RealmResults<Cat>> emitter) {
                 final Realm observableRealm = Realm.getInstance(realm.getConfiguration());
                 final RealmResults<Cat> catTable = observableRealm.where(Cat.class).findAll();
 
                 final RealmChangeListener<RealmResults<Cat>> listener = cats -> {
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(cats);
+                    if(!emitter.isDisposed()) {
+                        emitter.onNext(cats);
                     }
                 };
-                subscriber.add(Subscriptions.create(() -> {
+                emitter.setDisposable(Disposables.fromAction(() -> {
                     if(catTable.isValid()) {
                         catTable.removeChangeListener(listener);
                     }
@@ -117,15 +103,15 @@ public class MainScopeListener
                 }));
                 catTable.addChangeListener(listener);
 
-                subscriber.onNext(catTable);
+                emitter.onNext(catTable);
             }
         }).subscribeOn(LOOPER_SCHEDULER).unsubscribeOn(LOOPER_SCHEDULER);
-        
-        dogSubscription = dogTableListener.subscribe(dogs -> {
+
+        dogDisposable = dogTableListener.subscribe(dogs -> {
             Log.i("DOG SUBSCRIPTION", "Event happened for DOG table! [" + Thread.currentThread() + "]");
         });
 
-        catSubscription = catTableListener.subscribe(cats -> {
+        catDisposable = catTableListener.subscribe(cats -> {
             Log.i("CAT SUBSCRIPTION", "Event happened for CAT table! [" + Thread.currentThread() + "]");
         });
 
@@ -145,14 +131,14 @@ public class MainScopeListener
 
     @Override
     public void onDestroy() {
-        if(realmSubscription != null && !realmSubscription.isUnsubscribed() ) {
-            realmSubscription.unsubscribe();
+        if(realmDisposable != null && !realmDisposable.isDisposed()) {
+            realmDisposable.dispose();
         }
-        if(dogSubscription != null && !dogSubscription.isUnsubscribed()) {
-            dogSubscription.unsubscribe();
+        if(dogDisposable != null && !dogDisposable.isDisposed()) {
+            dogDisposable.dispose();
         }
-        if(catSubscription!= null && !catSubscription.isUnsubscribed()) {
-            catSubscription.unsubscribe();
+        if(catDisposable != null && !catDisposable.isDisposed()) {
+            catDisposable.dispose();
         }
         handlerThread.quit();
         realm.close();

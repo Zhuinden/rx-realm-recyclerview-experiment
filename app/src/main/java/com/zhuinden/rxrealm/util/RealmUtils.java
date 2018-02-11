@@ -22,6 +22,6 @@ public class RealmUtils {
     }
 
     public static void executeInTransaction(Realm.Transaction realmTransaction) {
-        executeInTransaction(Injector.INSTANCE.getComponent().realmConfiguration(), realmTransaction);
+        executeInTransaction(Injector.get().realmConfiguration(), realmTransaction);
     }
 }
